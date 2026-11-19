@@ -1,15 +1,28 @@
 #!/usr/bin/env python3
-"""Entry for make.fun news-image-20261119.
+"""Entrypoint: copy the front-page image to the grading output directory.
 
-Copies the front-page image (entry.png, drawn by generate_image.py in
-this repository from Thursday 19 November 2026 world news) to
-/output/entry.png. Standard library only, no network, deterministic.
+The repository ships entry.png (drawn by generate_image.py). This program
+just places that same file at /output/entry.png, creating the directory
+when it does not exist yet.
 """
+
 import os
 import shutil
-from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
-OUT = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
-OUT.mkdir(parents=True, exist_ok=True)
-shutil.copyfile(HERE / "entry.png", OUT / "entry.png")
+HERE = os.path.dirname(os.path.abspath(__file__))
+SOURCE = os.path.join(HERE, "entry.png")
+DEST_DIR = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+DEST = os.path.join(DEST_DIR, "entry.png")
+
+
+def main():
+    if not os.path.isfile(SOURCE):
+        raise SystemExit("missing source image: " + SOURCE)
+    os.makedirs(DEST_DIR, exist_ok=True)
+    shutil.copyfile(SOURCE, DEST)
+    size = os.path.getsize(DEST)
+    print("copied", SOURCE, "->", DEST, "(%d bytes)" % size)
+
+
+if __name__ == "__main__":
+    main()
